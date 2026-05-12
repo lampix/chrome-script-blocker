@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    :root {
+      --bg: #1e1e1e;
+      --fg: #e4e4e4;
+      --muted: #999;
+      --accent: #4ea1ff;
+      --danger: #e06b6b;
+      --row: #2a2a2a;
+    }
+    body {
+      margin: 0; padding: 12px;
+      width: 360px;
+      font-family: -apple-system, system-ui, sans-serif;
+      font-size: 13px;
+      background: var(--bg); color: var(--fg);
+    }
+    h1 { font-size: 13px; margin: 0 0 8px; color: var(--accent); }
+    .current {
+      font-size: 11px; color: var(--muted); margin-bottom: 10px;
+      word-break: break-all;
+    }
+    .rule {
+      background: var(--row);
+      padding: 6px 8px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .rule input[type=checkbox] { margin: 0; }
+    .rule .info { flex: 1; min-width: 0; }
+    .rule .domain { color: var(--accent); font-size: 11px; }
+    .rule .url { font-size: 11px; color: var(--muted); word-break: break-all; }
+    .rule button {
+      background: transparent; border: none; color: var(--danger);
+      cursor: pointer; font-size: 14px;
+    }
+    .add { margin-top: 8px; }
+    .add input {
+      width: 100%; box-sizing: border-box;
+      background: #2a2a2a; color: var(--fg);
+      border: 1px solid #444; border-radius: 3px;
+      padding: 5px 6px; margin-bottom: 4px;
+      font-size: 12px;
+    }
+    .add button {
+      width: 100%; padding: 6px; border: none; border-radius: 3px;
+      background: var(--accent); color: white; cursor: pointer;
+      font-weight: bold;
+    }
+    .footer {
+      margin-top: 10px; font-size: 11px;
+      display: flex; justify-content: space-between;
+    }
+    .footer a { color: var(--accent); text-decoration: none; cursor: pointer; }
+    .empty { color: var(--muted); font-style: italic; padding: 6px 0; }
+  </style>
+</head>
+<body>
+  <h1>Script Blocker</h1>
+  <div class="current" id="current">Current: …</div>
+
+  <div id="rules"></div>
+
+  <div class="add">
+    <input id="newDomain" placeholder="Domain (e.g. example.com)" />
+    <input id="newUrl" placeholder="Script URL pattern (e.g. ||cdn.example.com/tracker-*.js)" />
+    <button id="add">+ Add rule</button>
+  </div>
+
+  <div class="footer">
+    <a id="useCurrent">↳ Use current domain</a>
+    <a id="openOptions">Options ⚙</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

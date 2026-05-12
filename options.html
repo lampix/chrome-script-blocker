@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Script Blocker — Options</title>
+  <style>
+    body {
+      font-family: -apple-system, system-ui, sans-serif;
+      max-width: 800px; margin: 40px auto; padding: 0 20px;
+      background: #1e1e1e; color: #e4e4e4;
+    }
+    h1 { color: #4ea1ff; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 8px; text-align: left; border-bottom: 1px solid #333; vertical-align: middle; }
+    th { color: #999; font-weight: normal; font-size: 12px; text-transform: uppercase; }
+    input[type=text] {
+      width: 100%; box-sizing: border-box;
+      background: #2a2a2a; color: #e4e4e4;
+      border: 1px solid #444; border-radius: 3px;
+      padding: 5px 7px;
+    }
+    button {
+      background: #4ea1ff; color: white; border: none;
+      padding: 6px 12px; border-radius: 3px; cursor: pointer;
+    }
+    button.danger { background: #e06b6b; }
+    button.ghost { background: transparent; color: #4ea1ff; border: 1px solid #4ea1ff; }
+    .toolbar { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+    textarea {
+      width: 100%; min-height: 200px; box-sizing: border-box;
+      background: #2a2a2a; color: #e4e4e4;
+      border: 1px solid #444; border-radius: 3px;
+      padding: 8px; font-family: monospace; font-size: 12px;
+      margin-top: 10px;
+    }
+    details { margin-top: 24px; }
+    summary { cursor: pointer; color: #4ea1ff; }
+    .hint { color: #999; font-size: 12px; margin-top: 4px; }
+    .matched {
+      background: #2a2a2a; padding: 10px; border-radius: 4px;
+      font-family: monospace; font-size: 12px; margin-top: 10px;
+      max-height: 200px; overflow-y: auto;
+    }
+    code { background: #2a2a2a; padding: 1px 4px; border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <h1>Script Blocker — Options</h1>
+  <p>Block individual scripts per domain. Each rule consists of a <em>domain</em>
+     (on which sites the rule applies) and a <em>URL pattern</em>
+     (which script to block). Leave the domain empty for a global rule.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:30px">On</th>
+        <th style="width:30%">Domain</th>
+        <th>Script URL pattern</th>
+        <th style="width:60px"></th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <div class="toolbar">
+    <button id="addRow">+ New rule</button>
+    <button id="save">Save</button>
+    <button id="export" class="ghost">Export (JSON)</button>
+    <button id="importBtn" class="ghost">Import (JSON)</button>
+    <span id="status" style="margin-left:10px; color:#888;"></span>
+  </div>
+
+  <details>
+    <summary>URL pattern syntax</summary>
+    <p class="hint">
+      Patterns follow Chrome's <code>declarativeNetRequest.urlFilter</code> syntax,
+      similar to uBlock/AdBlock Plus:
+    </p>
+    <ul class="hint">
+      <li><code>||example.com/path</code> — matches example.com and all subdomains, starting at the path</li>
+      <li><code>*</code> — wildcard (any characters)</li>
+      <li><code>^</code> — separator (/, ?, =, &amp;, or end of URL)</li>
+      <li><code>|</code> at start/end — anchored to the start/end of the URL</li>
+    </ul>
+    <p class="hint">Examples:</p>
+    <ul class="hint">
+      <li><code>||cdn.example.com/tracker-*.js</code> — tracker script with any hash suffix</li>
+      <li><code>||analytics.example.com^</code> — entire domain</li>
+      <li><code>/tracker.js</code> — any URL containing "/tracker.js"</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>Import / Export</summary>
+    <textarea id="ioArea" placeholder='[{"domain":"example.com","urlFilter":"||cdn.example.com/tracker-*.js","enabled":true}]'></textarea>
+    <div class="toolbar">
+      <button id="importApply">Apply JSON from textarea</button>
+    </div>
+  </details>
+
+  <details>
+    <summary>Recently blocked requests (diagnostics)</summary>
+    <p class="hint">Shows which rules matched in roughly the last 10 minutes.</p>
+    <button id="refreshMatched" class="ghost">Refresh</button>
+    <div class="matched" id="matched">—</div>
+  </details>
+
+  <script src="options.js"></script>
+</body>
+</html>
