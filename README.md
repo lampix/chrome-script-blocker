@@ -36,7 +36,7 @@ denen es dich stört.
      dann `script-blocker-per-domain-main` (oder ähnlich).
    - **Variante 3 (für Git-Nutzer):**
      ```bash
-     git clone https://github.com/<USERNAME>/script-blocker-per-domain.git
+     git clone https://github.com/lampix/chrome-script-blocker.git
      ```
 
 2. Öffne in Chrome `chrome://extensions`.
