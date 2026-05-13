@@ -3,6 +3,10 @@
 dist/
 build/
 
+# Node (falls jemand npm install ausführt, obwohl es keine Dependencies gibt)
+node_modules/
+package-lock.json
+
 # OS junk
 .DS_Store
 Thumbs.db
@@ -15,3 +19,9 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Claude Code (lokale Projekt-Notizen und Session-Daten, nicht öffentlich teilen)
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+.claude.md

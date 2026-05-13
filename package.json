@@ -1,0 +1,28 @@
+{
+  "name": "script-blocker-per-domain",
+  "version": "1.0.0",
+  "description": "Chrome extension (MV3) to block specific JavaScript files per domain via configurable URL patterns.",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "lint": "node --check background.js && node --check popup.js && node --check options.js && echo 'Syntax OK'",
+    "validate:manifest": "node -e \"JSON.parse(require('fs').readFileSync('manifest.json','utf8')); console.log('manifest.json OK')\"",
+    "check": "npm run validate:manifest && npm run lint",
+    "build:zip": "rm -f script-blocker.zip && zip -r script-blocker.zip manifest.json background.js popup.html popup.js options.html options.js icons/ -x '*.DS_Store'",
+    "build:store-zip": "rm -f script-blocker-store.zip && zip -r script-blocker-store.zip manifest.json background.js popup.html popup.js options.html options.js icons/ -x '*.DS_Store'"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lampix/chrome-script-blocker.git"
+  },
+  "keywords": [
+    "chrome-extension",
+    "manifest-v3",
+    "script-blocker",
+    "declarativeNetRequest",
+    "privacy"
+  ]
+}
