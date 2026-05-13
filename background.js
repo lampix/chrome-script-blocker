@@ -44,6 +44,37 @@ function toDnrRule(rule, index) {
   };
 }
 
+// Setzt Badge-Text und Icon abhängig davon, wie viele Regeln für den aktiven Tab greifen.
+async function updateBadgeForTab(tabId, url) {
+  const rules = await loadRules();
+  let host = "";
+  try { host = new URL(url).hostname; } catch { /* keine URL */ }
+
+  const active = rules.filter(r =>
+    r.enabled !== false &&
+    r.urlFilter &&
+    (!r.domain || !host || host.endsWith(r.domain))
+  );
+
+  const count = active.length;
+  const icons = count > 0
+    ? { 16: "icons/icon16.png", 48: "icons/icon48.png", 128: "icons/icon128.png" }
+    : { 16: "icons/icon16_gray.png", 48: "icons/icon48_gray.png", 128: "icons/icon128_gray.png" };
+
+  await chrome.action.setIcon({ tabId, path: icons });
+  await chrome.action.setBadgeText({ tabId, text: count > 0 ? String(count) : "" });
+  await chrome.action.setBadgeBackgroundColor({ color: "#4ea1ff" });
+}
+
+async function updateBadgeAllTabs() {
+  const tabs = await chrome.tabs.query({});
+  for (const tab of tabs) {
+    if (tab.id && tab.url) {
+      try { await updateBadgeForTab(tab.id, tab.url); } catch { /* ignore inactive tabs */ }
+    }
+  }
+}
+
 async function syncDnrRules() {
   const stored = await loadRules();
   const enabled = stored
@@ -64,14 +95,31 @@ async function syncDnrRules() {
 
 // --- Lifecycle ---------------------------------------------------------------
 
-chrome.runtime.onInstalled.addListener(syncDnrRules);
-chrome.runtime.onStartup.addListener(syncDnrRules);
+chrome.runtime.onInstalled.addListener(async () => {
+  await syncDnrRules();
+  await updateBadgeAllTabs();
+});
+chrome.runtime.onStartup.addListener(async () => {
+  await syncDnrRules();
+  await updateBadgeAllTabs();
+});
 
-// Wenn die Regeln im Storage geändert werden (durch Options-Page oder Popup),
-// sofort neu synchronisieren.
+// Wenn die Regeln im Storage geändert werden, Badge auf allen Tabs aktualisieren.
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes[STORAGE_KEY]) {
-    syncDnrRules();
+    syncDnrRules().then(updateBadgeAllTabs);
+  }
+});
+
+// Badge aktualisieren wenn der User den Tab wechselt oder eine Seite lädt.
+chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+  const tab = await chrome.tabs.get(tabId);
+  if (tab.url) await updateBadgeForTab(tabId, tab.url);
+});
+
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.status === "complete" && tab.url) {
+    await updateBadgeForTab(tabId, tab.url);
   }
 });
 

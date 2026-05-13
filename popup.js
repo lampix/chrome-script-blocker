@@ -30,19 +30,17 @@ async function renderRules() {
 
   rulesDiv.innerHTML = "";
 
-  // Bevorzugt Regeln für aktuelle Domain oben anzeigen
-  const sorted = [...rules].sort((a, b) => {
-    const aMatch = currentHost && a.domain && currentHost.endsWith(a.domain) ? -1 : 0;
-    const bMatch = currentHost && b.domain && currentHost.endsWith(b.domain) ? -1 : 0;
-    return aMatch - bMatch;
-  });
+  // Nur Regeln anzeigen, die zur aktuellen Domain passen (oder domain-los sind)
+  const relevant = rules.filter(r =>
+    !r.domain || !currentHost || currentHost.endsWith(r.domain)
+  );
 
-  if (sorted.length === 0) {
-    rulesDiv.innerHTML = '<div class="empty">No rules yet. Add one below.</div>';
+  if (relevant.length === 0) {
+    rulesDiv.innerHTML = '<div class="empty">No rules for this domain.</div>';
     return;
   }
 
-  sorted.forEach((r) => {
+  relevant.forEach((r) => {
     const realIndex = rules.indexOf(r);
     const row = document.createElement("div");
     row.className = "rule";

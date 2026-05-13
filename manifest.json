@@ -7,7 +7,8 @@
     "declarativeNetRequest",
     "declarativeNetRequestFeedback",
     "storage",
-    "activeTab"
+    "activeTab",
+    "tabs"
   ],
   "background": {
     "service_worker": "background.js"
