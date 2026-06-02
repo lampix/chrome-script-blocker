@@ -13,7 +13,7 @@ function setStatus(text, color) {
   if (text) setTimeout(() => { statusEl.textContent = ""; }, 2500);
 }
 
-function makeRow(rule = { domain: "", urlFilter: "", enabled: true }) {
+function makeRow(rule = { domain: "", urlFilter: "", pathContains: "", enabled: true }) {
   const tr = document.createElement("tr");
 
   const tdOn = document.createElement("td");
@@ -36,6 +36,13 @@ function makeRow(rule = { domain: "", urlFilter: "", enabled: true }) {
   inpUrl.placeholder = "||example.com/path/script.js";
   tdUrl.appendChild(inpUrl);
 
+  const tdPath = document.createElement("td");
+  const inpPath = document.createElement("input");
+  inpPath.type = "text";
+  inpPath.value = rule.pathContains || "";
+  inpPath.placeholder = "e.g. /story/";
+  tdPath.appendChild(inpPath);
+
   const tdDel = document.createElement("td");
   const btn = document.createElement("button");
   btn.textContent = "Delete";
@@ -46,13 +53,21 @@ function makeRow(rule = { domain: "", urlFilter: "", enabled: true }) {
   tr.appendChild(tdOn);
   tr.appendChild(tdDom);
   tr.appendChild(tdUrl);
+  tr.appendChild(tdPath);
   tr.appendChild(tdDel);
 
-  tr._getRule = () => ({
-    domain: inpDom.value.trim(),
-    urlFilter: inpUrl.value.trim(),
-    enabled: cb.checked
-  });
+  tr._getRule = () => {
+    const r = {
+      domain: inpDom.value.trim(),
+      urlFilter: inpUrl.value.trim(),
+      enabled: cb.checked
+    };
+    // pathContains nur aufnehmen wenn gesetzt — hält Export/Storage schlank
+    // und Regeln ohne Pfad-Gate exakt rückwärtskompatibel.
+    const p = inpPath.value.trim();
+    if (p !== "") r.pathContains = p;
+    return r;
+  };
   return tr;
 }
 
