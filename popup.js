@@ -4,6 +4,7 @@ const rulesDiv = document.getElementById("rules");
 const currentDiv = document.getElementById("current");
 const newDomainEl = document.getElementById("newDomain");
 const newUrlEl = document.getElementById("newUrl");
+const newPathEl = document.getElementById("newPath");
 
 let currentHost = "";
 
@@ -56,9 +57,13 @@ async function renderRules() {
 
     const info = document.createElement("div");
     info.className = "info";
+    const pathLine = r.pathContains
+      ? '<div class="url">only on path: ' + r.pathContains + '</div>'
+      : '';
     info.innerHTML =
       '<div class="domain">' + (r.domain || "(all domains)") + '</div>' +
-      '<div class="url">' + r.urlFilter + '</div>';
+      '<div class="url">' + r.urlFilter + '</div>' +
+      pathLine;
 
     const del = document.createElement("button");
     del.textContent = "✕";
@@ -79,16 +84,20 @@ async function renderRules() {
 document.getElementById("add").addEventListener("click", async () => {
   const domain = newDomainEl.value.trim();
   const urlFilter = newUrlEl.value.trim();
+  const pathContains = newPathEl.value.trim();
   if (!urlFilter) {
     newUrlEl.focus();
     return;
   }
   const res = await send({ type: "getRules" });
   const rules = res?.rules || [];
-  rules.push({ domain, urlFilter, enabled: true });
+  const rule = { domain, urlFilter, enabled: true };
+  if (pathContains !== "") rule.pathContains = pathContains;
+  rules.push(rule);
   await send({ type: "setRules", rules });
   newDomainEl.value = "";
   newUrlEl.value = "";
+  newPathEl.value = "";
   renderRules();
 });
 

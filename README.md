@@ -17,6 +17,12 @@ denen es dich stört.
 
 - Blockiert externe Skripte über URL-Pattern (uBlock-Syntax: `||`, `*`, `^`)
 - Regeln gelten pro Domain (oder global, wenn Domain leer bleibt)
+- Optionaler **Pfad-Filter** pro Regel: blockiert nur auf Seiten, deren
+  URL-Pfad einen bestimmten Teilstring enthält (z.B. nur auf Artikelseiten
+  mit `/story/`, nicht auf Übersichts-/Startseiten)
+- **Dreistufiges Icon**: grau = keine Regel für diese Domain; farbig ohne
+  Zahl = Regel vorhanden, greift auf dieser Seite aber gerade nicht; farbig
+  mit Zahl = blockt hier aktiv (Zahl = Anzahl der greifenden Regeln)
 - Schnelles Hinzufügen aus dem aktuellen Tab via Popup
 - Vollwertige Options-Seite mit Tabellen-Editor und JSON Import/Export
 - Pro-Regel-Schalter (an/aus, ohne Löschen)
@@ -103,6 +109,26 @@ stark an uBlock/AdBlock Plus angelehnt ist:
 | `^` | Trenner: `/`, `?`, `=`, `&` oder URL-Ende |
 | `\|` (am Anfang/Ende) | URL-Start bzw. -Ende (anchored) |
 
+### Pfad-Filter (optional)
+
+Jede Regel hat ein optionales Feld **"Path contains"**. Bleibt es leer,
+verhält sich die Regel wie bisher (blockt überall auf der Domain). Ist es
+gesetzt, greift die Regel nur, wenn der *Pfad der Seiten-URL* den
+angegebenen Teilstring (einfacher Substring-Match) enthält.
+
+Beispiel: `/story/` blockt das Skript nur auf Artikelseiten wie
+`derstandard.at/story/3000000…`, aber nicht auf der Startseite oder in der
+Ressort-Übersicht. Das ist nützlich bei Seiten mit Adblock-Detection: Auf
+den meisten Seiten wird das Skript ganz normal ausgeliefert, nur auf den
+Artikelseiten, wo es stört, fällt es weg.
+
+> Technischer Hinweis: Chromes `declarativeNetRequest` kann den *Pfad* der
+> ladenden Seite nicht filtern (nur deren Domain). Der Pfad-Filter wird
+> daher über `chrome.webNavigation` umgesetzt: Die Block-Regel ist immer
+> aktiv, und auf Seiten, deren Pfad *nicht* passt, wird der Block per
+> tab-spezifischer Ausnahme wieder aufgehoben. Dadurch greift die Sperre
+> auf den Treffer-Seiten sofort und zuverlässig (kein Timing-Problem).
+
 ## Beispiele
 
 ### Beispiel 1: Piano-Paywall auf derStandard.at
@@ -112,11 +138,15 @@ Auf `derstandard.at` soll das Skript
 der Hash-Suffix im Dateinamen sich gelegentlich ändert, verwenden wir eine
 Wildcard:
 
-| An | Domain | Skript-URL-Pattern |
-|----|--------|--------------------|
-| ✓  | `derstandard.at` | `\|\|at.staticfiles.at/js/piano-*.js` |
+| An | Domain | Skript-URL-Pattern | Path contains |
+|----|--------|--------------------|---------------|
+| ✓  | `derstandard.at` | `\|\|at.staticfiles.at/js/piano-*.js` | `/story/` |
 
 Damit wird der aktuelle wie auch zukünftige Versionen der Datei erfasst.
+Durch den Pfad-Filter `/story/` greift die Regel nur auf Artikelseiten —
+auf der Startseite und in den Übersichten lädt das Skript normal, was die
+Adblock-Erkennung von derStandard unauffälliger passieren lässt. Lässt man
+das Feld leer, wird auf der gesamten Domain blockiert.
 
 ### Beispiel 2: Tracker auf einer einzelnen Domain blockieren
 
@@ -157,7 +187,8 @@ Bugs, Feature-Wünsche oder Verbesserungen gerne als
 ## Technik
 
 - Manifest V3
-- API: `chrome.declarativeNetRequest` (dynamische Regeln)
+- API: `chrome.declarativeNetRequest` (dynamische Regeln; Session-Regeln für
+  pfad-bedingte Filter), `chrome.webNavigation` (Pfad-Erkennung vor dem Laden)
 - Speicher: `chrome.storage.local`
 - Keine Build-Tools, keine externen Abhängigkeiten — purer Vanilla-JS
 

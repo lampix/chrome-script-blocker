@@ -49,13 +49,17 @@
   <p>Block individual scripts per domain. Each rule consists of a <em>domain</em>
      (on which sites the rule applies) and a <em>URL pattern</em>
      (which script to block). Leave the domain empty for a global rule.</p>
+  <p class="hint"><strong>Path contains</strong> (optional): if set, the rule only
+     applies on pages whose URL path contains this substring (e.g. <code>/story/</code>).
+     Useful to block a script on article pages but not on overview/landing pages.</p>
 
   <table>
     <thead>
       <tr>
         <th style="width:30px">On</th>
-        <th style="width:30%">Domain</th>
+        <th style="width:24%">Domain</th>
         <th>Script URL pattern</th>
+        <th style="width:18%">Path contains</th>
         <th style="width:60px"></th>
       </tr>
     </thead>
